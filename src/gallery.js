@@ -14,7 +14,6 @@ refs.galleryList.insertAdjacentHTML('beforeend', gallery);
 refs.galleryList.addEventListener('click', onGalleryListClick);
 refs.closeModalBtn.addEventListener('click', openCloseModal);
 refs.overlayModal.addEventListener('click', openCloseModal);
-window.addEventListener('keydown', controlView);
 
 function createGallery(galleryData) {
   return galleryData
@@ -43,9 +42,6 @@ function onGalleryListClick(evt) {
     return;
   }
 
-  const galleryEl = evt.target;
-  const parentGalleryItem = galleryEl.closest('.js-gallery');
-
   openCloseModal();
   replaceSrcImg(evt.target);
 }
@@ -53,6 +49,9 @@ function onGalleryListClick(evt) {
 function openCloseModal() {
   refs.openedImage.setAttribute('src', '');
   refs.lightbox.classList.toggle('is-open');
+  refs.lightbox.classList.contains('is-open')
+    ? window.addEventListener('keydown', controlView)
+    : window.removeEventListener('keydown', controlView);
 }
 
 function pressEsc(evt) {
@@ -70,7 +69,7 @@ function slideImages(evt) {
     .querySelector(`[data-source="${refs.openedImage.getAttribute('src')}"]`)
     .closest('.gallery__item');
 
-  if (evt.code === 'ArrowRight') {
+  if (evt.code === 'ArrowRight' || evt.code === 'PageDown') {
     if (currentListItem !== refs.galleryList.lastElementChild) {
       refs.openedImage.setAttribute(
         'src',
@@ -88,7 +87,7 @@ function slideImages(evt) {
     }
   }
 
-  if (evt.code === 'ArrowLeft') {
+  if (evt.code === 'ArrowLeft' || evt.code === 'PageUp') {
     if (currentListItem !== refs.galleryList.firstElementChild) {
       refs.openedImage.setAttribute(
         'src',
@@ -104,6 +103,24 @@ function slideImages(evt) {
           .getAttribute('data-source'),
       );
     }
+  }
+
+  if (evt.code === 'End') {
+    refs.openedImage.setAttribute(
+      'src',
+      refs.galleryList.lastElementChild
+        .querySelector('.gallery__image')
+        .getAttribute('data-source'),
+    );
+  }
+
+  if (evt.code === 'Home') {
+    refs.openedImage.setAttribute(
+      'src',
+      refs.galleryList.firstElementChild
+        .querySelector('.gallery__image')
+        .getAttribute('data-source'),
+    );
   }
 }
 
